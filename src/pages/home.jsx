@@ -1581,6 +1581,14 @@ const Home = () => {
                     }
                 </div>
             </div>
+            <div className="col-11 col-md-6 pt-4 mt-4 flex-column">
+                <h2>Whatsapp generator</h2>
+                <p style={{fontSize:"small"}}>Adalah aplikasi untuk memudahkan share kontak whatsapp dengan link, dan anda dapat menambahkan custom template text saat orang lain ingin menghubungi anda</p>
+            </div>
+            <div className="col-11 col-md-6 pt-4 mt-1 flex-column">
+                <h2>Client side</h2>
+                <p style={{fontSize:"small"}}>Tenang saja kami tidak menyimpan nomor anda, semua proses generate link di lakukan di client side tanpa mengirim ke kami!</p>
+            </div>
             <Modal show={modals} onHide={() => setModals(false)}>
                 <Modal.Header closeButton>
                     Kode Negara
