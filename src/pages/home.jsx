@@ -1,6 +1,7 @@
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Swal from 'sweetalert2'
+import { Modal } from 'react-bootstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import WaGen from '../assets/wa.png'
 import "./style.css"
@@ -1488,13 +1489,19 @@ const Home = () => {
     const [dial, setDial] = useState("+62")
     const [number, setNumber] = useState("")
     const [text, setText] = useState("")
+    const [flag, setFlag] = useState("https://cdn.kcak11.com/CountryFlags/countries/id.svg")
     const [generated, setGenerated] = useState(false)
+    const [allDial, setAllDial] = useState([])
+    const [modals, setModals] = useState(false)
+
+    useEffect(() => {
+        setAllDial(country)
+    }, [])
 
     const generate = () => {
         if (number !== "" && text !== "") {
             setGenerated(true)
             setNumber("")
-            setDial("62")
             setText(`https://wa.me/${dial.replace("+", "")+number}?text=${encodeURI(text)}`)
         } else {
             Swal.fire({
@@ -1510,7 +1517,6 @@ const Home = () => {
     const copy = () => {
         setGenerated(false)
         setNumber("")
-        setDial("+62")
         setText("")
 
         Swal.fire({
@@ -1522,21 +1528,40 @@ const Home = () => {
         })
     }
 
+    const setFlagAndDial = (dial, flag) => {
+        setDial(dial)
+        setFlag(flag)
+        setModals(false)
+    }
+
+    const findCode = (value) => {
+        let data = []
+        for(const i in country){
+            if(country[i].dialCode.indexOf(value) !== -1){
+                data.push(country[i])
+            }
+        }
+
+        setAllDial(data)
+    }
+
+    const showModalsWithData = () => {
+        setAllDial(country)
+        setModals(true)
+    }
+
     return (
         <div className="d-flex bg-wave w-100 justify-content-center align-items-center flex-column">
             <div className="d-flex w-100 justify-content-center p-3 mt-5 text-white">
-                <img src={WaGen} alt="wa generator" width="200px"/>
+                <img src={WaGen} alt="wa generator" width="200px" height="80px"/>
             </div>
             <div className="col-11 col-md-6 shadow bg-white p-4 mt-4 rounded border">
-                <div className="d-flex w-100">
-                    <div className="d-flex mx-2">
-                        <select className="rounded border p-2" style={{width:"85px"}} value={dial} onChange={(e) => setDial(e.target.value)}>
-                            {
-                                country.map(data => {
-                                    return <option value={data.dialCode} key={data.isoCode}>{data.dialCode+" - "+data.name}</option>
-                                })
-                            }
-                        </select>
+                <div className="d-flex w-100 align-items-center">
+                    <div className="d-flex p-0" style={{marginRight:"10px", maxWidth:"200px"}}>
+                        <img src={flag} alt="flag" className='rounded' width="100%" height="35px"/>
+                    </div>
+                    <div className="d-flex">
+                        <span className='mx-3' onClick={() => showModalsWithData()} style={{cursor:"pointer"}}>{dial}</span>
                     </div>
                     <div className="d-flex w-100">
                         <input type="number" className="w-100 border rounded p-2" placeholder="Masukan nomor handphone" value={number} onChange={(e) => setNumber(e.target.value)}/>
@@ -1556,6 +1581,44 @@ const Home = () => {
                     }
                 </div>
             </div>
+            <Modal show={modals} onHide={() => setModals(false)}>
+                <Modal.Header closeButton>
+                    Kode Negara
+                </Modal.Header>
+                <Modal.Body className='p-3 p-md-4'>
+                    <div className="d-flex w-100 mb-4 mt-2">
+                        <input type="text" placeholder='Cari kode negara' className='border p-2 w-100 rounded' onChange={(e) => findCode(e.target.value)}/>
+                    </div>
+                    <div className="d-flex w-100 flex-column hideScroll">
+                        {   
+                            allDial.length > 0 ?
+                                allDial.map(data => {
+                                    return (
+                                        <div className="d-flex w-100 align-items-center my-1" key={data.isoCode}>
+                                            <div className="col-3">
+                                                {data.dialCode}
+                                            </div>
+                                            <div className="col-6">
+                                                {data.name}
+                                            </div>
+                                            <div className="col-3 px-0">
+                                                <div className="d-flex justify-content-end flex-fill">
+                                                    <button className='px-3 py-1 rounded border-0 text-white' style={{backgroundColor:"#25d366", fontSize:"small"}} onClick={() => setFlagAndDial(data.dialCode, data.flag)}>Pilih</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            :
+                                <div className="col-12 text-center">
+                                    <span style={{fontSize:"small"}}>
+                                        Data tidak di temukan !
+                                    </span>
+                                </div>
+                        }
+                    </div>
+                </Modal.Body>
+            </Modal>
             <div className="col-11 col-md-6 p-4 mt-4">
                 <div className="d-flex justify-content-center">
                     <p>Copyright &copy; {new Date().getFullYear()} <a href="http://exsan.my.id" target="_blank" rel="noreferrer" className='text-decoration-none'>Exsan Renaldhi</a></p>
